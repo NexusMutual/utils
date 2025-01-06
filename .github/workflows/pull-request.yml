@@ -2,6 +2,12 @@ name: pull-request
 on:
   pull_request:
     types: [opened, synchronize]
+  workflow_dispatch:
+    inputs:
+      CACHE_KEY: # Provide inputs.CACHE_KEY manually from UI to bust cache
+        description: "Cache key override"
+        required: false
+        default: "v1"
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -9,7 +15,7 @@ concurrency:
 
 env:
   NODE_VERSION: "18"
-  CACHE_KEY: ${{ secrets.CACHE_KEY }} # Change to bust caches
+  CACHE_KEY: ${{ inputs.CACHE_KEY || 'v1' }}
   PROVIDER_URL: https://eth-mainnet.g.alchemy.com/v2/${{ secrets.ALCHEMY_API_KEY }}
   IPFS_GATEWAY_URL: https://api.nexusmutual.io
   COVER_ROUTER_URL: https://api.nexusmutual.io/v2
