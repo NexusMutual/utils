@@ -25,8 +25,9 @@ describe('setLogLevel', () => {
     });
   });
 
-  const assertConsoleCalls = (activeFrom: ConsoleMethod, level: LogLevel) => {
-    const methodIndex = CONSOLE_METHODS.indexOf(activeFrom);
+  const assertConsoleCalls = (level: LogLevel, activeFrom: ConsoleMethod | null) => {
+    // if activeFrom is null (i.e. all levels are disabled) set methodIndex to > CONSOLE_METHODS last index
+    const methodIndex = activeFrom === null ? CONSOLE_METHODS.length : CONSOLE_METHODS.indexOf(activeFrom);
     const activeMethods = CONSOLE_METHODS.slice(methodIndex);
     const inactiveMethods = CONSOLE_METHODS.slice(0, methodIndex);
 
@@ -76,8 +77,10 @@ describe('setLogLevel', () => {
   });
 
   it('should handle case-insensitive log levels', () => {
-    setLogLevel('ERROR' as LogLevel);
-    assertConsoleCalls('error', 'ERROR' as LogLevel);
+    const errorLevel = 'ERROR' as LogLevel;
+    const activeFromLevel = 'error';
+    setLogLevel(errorLevel);
+    assertConsoleCalls(errorLevel, activeFromLevel);
   });
 
   it('should treat "log" and "info" as the same level', () => {
@@ -96,25 +99,75 @@ describe('setLogLevel', () => {
     // Debug and trace should not work
     expect(consoleSpies.debug.called).to.equal(false);
     expect(consoleSpies.trace.called).to.equal(false);
+
+    setLogLevel('log');
+
+    // reset spies
+    consoleSpies.info.resetHistory();
+    consoleSpies.log.resetHistory();
+
+    // Both log and info should work
+    console.log('INFO - testing console.log');
+    console.info('INFO - testing console.info');
+
+    expect(consoleSpies.log.calledOnceWith('INFO - testing console.log')).to.equal(true);
+    expect(consoleSpies.info.calledOnceWith('INFO - testing console.info')).to.equal(true);
+
+    // Debug and trace should not work
+    expect(consoleSpies.debug.called).to.equal(false);
+    expect(consoleSpies.trace.called).to.equal(false);
+  });
+
+  it('should handle log/info equivalence when level is explicitly set to "log"', () => {
+    setLogLevel('log');
+
+    // Reset all spies
+    CONSOLE_METHODS.forEach(method => {
+      consoleSpies[method].resetHistory();
+    });
+
+    const testMessage = 'Testing log level equivalence';
+
+    // Test both log and info methods
+    console.log(testMessage);
+    console.info(testMessage);
+
+    const enabledLogs = ['log', 'info'];
+    enabledLogs.forEach(method => {
+      const errorMessage = `console.${method} should work when level is "log"`;
+      expect(consoleSpies[method].calledOnceWith(testMessage), errorMessage).to.equal(true);
+    });
+
+    const disabledLogs = ['debug', 'trace'];
+    disabledLogs.forEach(method => {
+      expect(consoleSpies[method].called, `console.${method} should not work when level is "log"`).to.equal(false);
+    });
   });
 
   type LevelTest = {
     level: LogLevel;
-    activeFrom: ConsoleMethod;
+    activeFrom: ConsoleMethod | null;
   };
 
   const levelTests: LevelTest[] = [
+    { level: 'all', activeFrom: 'trace' },
     { level: 'trace', activeFrom: 'trace' },
     { level: 'debug', activeFrom: 'debug' },
     { level: 'info', activeFrom: 'info' },
+    { level: 'log', activeFrom: 'info' }, // log and info are same level
     { level: 'warn', activeFrom: 'warn' },
     { level: 'error', activeFrom: 'error' },
+    { level: 'silence', activeFrom: null },
   ];
 
   levelTests.forEach(({ level, activeFrom }) => {
-    it(`should only log ${activeFrom} and above when level is "${level}"`, () => {
+    const testDescription = activeFrom
+      ? `should only log ${activeFrom.toUpperCase()} level and above`
+      : `should disable all log levels`;
+
+    it(`${testDescription} when level is "${level}"`, () => {
       setLogLevel(level);
-      assertConsoleCalls(activeFrom, level);
+      assertConsoleCalls(level, activeFrom);
     });
   });
 
