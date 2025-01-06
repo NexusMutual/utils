@@ -19,10 +19,13 @@ const normalizeLogLevel = (level: LogLevel) => (level === 'log' ? 'info' : level
  * Treats "log" and "info" as equivalent
  *
  * @param {LogLevel} level - The log level to check
+ * @param {LogLevel} effectiveLevel - The effective log level to compare against
  * @returns {boolean} True if the log should be displayed, false otherwise
  */
-const shouldLog = (level: LogLevel, envLogLevel: LogLevel): boolean => {
-  return LOG_LEVELS.indexOf(level) >= LOG_LEVELS.indexOf(envLogLevel);
+const shouldLog = (level: LogLevel, effectiveLevel: LogLevel): boolean => {
+  const normalizedLevel = normalizeLogLevel(level);
+  const normalizedEffectiveLevel = normalizeLogLevel(effectiveLevel);
+  return LOG_LEVELS.indexOf(normalizedLevel) >= LOG_LEVELS.indexOf(normalizedEffectiveLevel);
 };
 
 /**
