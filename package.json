@@ -11,7 +11,7 @@
     "package.json"
   ],
   "scripts": {
-    "build": "npm run clean && npx tsc",
+    "build": "npm run clean && tsc",
     "clean": "rm -rf dist",
     "lint": "eslint --max-warnings 0 .",
     "lint:fix": "npm run lint -- --fix",
