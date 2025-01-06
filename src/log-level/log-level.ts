@@ -12,7 +12,7 @@ const LOG_LEVELS: LogLevel[] = ['all', 'trace', 'debug', 'info', 'log', 'warn', 
  * @param {LogLevel} - log level to be adjusted
  * @returns {LogLevel} - adjusted log level
  */
-const setLogToInfoLevel = (level: LogLevel) => (level === 'log' ? 'info' : level);
+const normalizeLogLevel = (level: LogLevel) => (level === 'log' ? 'info' : level);
 
 /**
  * Determines if the current log level should be displayed
@@ -60,7 +60,7 @@ const setLogLevel = (logLevelParam: string = 'all') => {
   _console.info(levelMessage);
 
   for (const method of CONSOLE_METHODS) {
-    const methodLevel = setLogToInfoLevel(method);
+    const methodLevel = normalizeLogLevel(method);
     // replace the original method with the same one but with log level validation
     global.console[method] = (...params) => shouldLog(methodLevel, effectiveLevel) && _console[method]?.(...params);
   }
