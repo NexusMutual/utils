@@ -1,0 +1,66 @@
+{
+  "name": "@nexusmutual/utils",
+  "version": "0.0.1",
+  "description": "Shared utility libraries and functions for Nexus Mutual repositories",
+  "main": "./dist/index.js",
+  "typings": "./dist/index.d.ts",
+  "module": "./dist/index.mjs",
+  "files": [
+    "dist",
+    "README.md",
+    "package.json"
+  ],
+  "scripts": {
+    "build": "npm run clean && tsc",
+    "clean": "rm -rf dist",
+    "lint": "eslint --max-warnings 0 .",
+    "lint:fix": "npm run lint -- --fix",
+    "ts:check": "npm run ts:check-types && npm run ts:circular-check",
+    "ts:check-types": "tsc --noEmit",
+    "ts:circular-check": "dpdm --no-output --no-tree --no-warning --exit-code circular:1 -T ./src/**/*.ts",
+    "test": "nyc --reporter=text mocha -r ts-node/register 'src/**/*.spec.ts'",
+    "publish:next": "npm publish --access public --tag next",
+    "prepare": "husky"
+  },
+  "engines": {
+    "node": ">=16.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/NexusMutual/utils.git"
+  },
+  "author": "nexusmutual.io",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/NexusMutual/utils/issues"
+  },
+  "homepage": "https://github.com/NexusMutual/utils#readme",
+  "devDependencies": {
+    "@commitlint/cli": "^19.5.0",
+    "@commitlint/config-conventional": "^19.5.0",
+    "@types/chai": "^4.3.12",
+    "@types/mocha": "^10.0.6",
+    "@types/node": "^22.10.3",
+    "@typescript-eslint/eslint-plugin": "^6.19.1",
+    "@typescript-eslint/parser": "^6.19.1",
+    "chai": "^4.3.10",
+    "dpdm": "^3.14.0",
+    "eslint": "^8.56.0",
+    "eslint-config-prettier": "^8.6.0",
+    "eslint-config-semistandard": "^17.0.0",
+    "eslint-config-standard": "^17.1.0",
+    "eslint-import-resolver-typescript": "^3.6.1",
+    "eslint-plugin-import": "~2.26.0",
+    "eslint-plugin-mocha": "^10.1.0",
+    "eslint-plugin-n": "^15.7.0",
+    "eslint-plugin-node": "^11.1.0",
+    "eslint-plugin-prettier": "^5.2.1",
+    "eslint-plugin-standard": "^5.0.0",
+    "husky": "^9.0.11",
+    "mocha": "^10.3.0",
+    "nyc": "^17.1.0",
+    "sinon": "^19.0.2",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.7.2"
+  }
+}
